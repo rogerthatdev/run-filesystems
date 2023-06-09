@@ -1,0 +1,21 @@
+
+steps: 
+  - id: "Build"
+    name: "gcr.io/cloud-builders/docker:latest"
+    entrypoint: docker
+    args:
+      - build
+      - --tag
+      - "$_GCR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_APP:testing" # Tag docker image with git commit SHA
+      - .
+
+  - id: "Push Container Image"
+    name: "gcr.io/cloud-builders/docker:latest"
+    args:
+      - push
+      - "$_GCR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_APP:testing"
+
+substitutions:
+  _GCR_HOSTNAME: us-central1-docker.pkg.dev
+  _AR_REPO: run-filesystems
+  _APP: node-app
