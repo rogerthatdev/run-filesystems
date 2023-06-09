@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN npm install
-COPY . .
+COPY ./src .
 
 EXPOSE 8888
 CMD [ "node", "app.js" ]
