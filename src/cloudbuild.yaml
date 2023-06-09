@@ -7,7 +7,7 @@ steps:
       - build
       - --tag
       - "$_GCR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_APP:testing" # Tag docker image with git commit SHA
-      - .
+      - src/
 
   - id: "Push Container Image"
     name: "gcr.io/cloud-builders/docker:latest"
