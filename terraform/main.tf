@@ -69,6 +69,8 @@ resource "google_cloudbuild_trigger" "app_new_build" {
   name            = "run-filesystems-app-build"
   description     = "Initiates new build of run-filesystems"
   service_account = google_service_account.cloud_build.id
+  filename = "src/cloudbuild.yaml"
+  logging = "CLOUD_LOGGING_ONLY"
   included_files = [
     "src/**",
   ]
@@ -80,23 +82,23 @@ resource "google_cloudbuild_trigger" "app_new_build" {
       invert_regex = false
     }
   }
-  build {
-    images = ["${local.artifact_registry_repo}/node-app:$${SHORT_SHA}"]
-    substitutions = {
-      _IMAGE = "${local.artifact_registry_repo}/node-app"
-    }
-    tags = []
-    options {
-      logging = "CLOUD_LOGGING_ONLY"
-    }
-    dynamic "step" {
-      for_each = yamldecode(local.app_build_config).steps
-      content {
-        args       = step.value.args
-        name       = step.value.name
-        entrypoint = step.value.entrypoint
-        id         = step.value.id
-      }
-    }
-  }
+#   build {
+#     images = ["${local.artifact_registry_repo}/node-app:$${SHORT_SHA}"]
+#     substitutions = {
+#       _IMAGE = "${local.artifact_registry_repo}/node-app"
+#     }
+#     tags = []
+#     options {
+#       logging = "CLOUD_LOGGING_ONLY"
+#     }
+#     dynamic "step" {
+#       for_each = yamldecode(local.app_build_config).steps
+#       content {
+#         args       = step.value.args
+#         name       = step.value.name
+#         entrypoint = step.value.entrypoint
+#         id         = step.value.id
+#       }
+#     }
+#   }
 }

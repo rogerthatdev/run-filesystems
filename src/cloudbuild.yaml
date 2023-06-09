@@ -19,3 +19,6 @@ substitutions:
   _GCR_HOSTNAME: us-central1-docker.pkg.dev
   _AR_REPO: run-filesystems
   _APP: node-app
+
+options:
+  logging: CLOUD_LOGGING_ONLY
