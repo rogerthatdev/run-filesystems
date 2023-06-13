@@ -3,7 +3,8 @@ locals {
     "cloudbuild.googleapis.com",
     "run.googleapis.com",
     "artifactregistry.googleapis.com",
-    "file.googleapis.com"
+    "file.googleapis.com",
+    "vpcaccess.googleapis.com"
   ]
   artifact_registry_repo = "${google_artifact_registry_repository.default.location}-docker.pkg.dev/${google_artifact_registry_repository.default.project}/${google_artifact_registry_repository.default.name}"
   app_build_config       = templatefile("${path.module}/cloudbuild/app-build.cloudbuild.yaml.tftpl", {})
@@ -70,7 +71,6 @@ resource "google_cloudbuild_trigger" "app_new_build" {
   description     = "Initiates new build of run-filesystems"
   service_account = google_service_account.cloud_build.id
   filename = "src/cloudbuild.yaml"
-  logging = "CLOUD_LOGGING_ONLY"
   included_files = [
     "src/**",
   ]
@@ -82,23 +82,27 @@ resource "google_cloudbuild_trigger" "app_new_build" {
       invert_regex = false
     }
   }
-#   build {
-#     images = ["${local.artifact_registry_repo}/node-app:$${SHORT_SHA}"]
-#     substitutions = {
-#       _IMAGE = "${local.artifact_registry_repo}/node-app"
-#     }
-#     tags = []
-#     options {
-#       logging = "CLOUD_LOGGING_ONLY"
-#     }
-#     dynamic "step" {
-#       for_each = yamldecode(local.app_build_config).steps
-#       content {
-#         args       = step.value.args
-#         name       = step.value.name
-#         entrypoint = step.value.entrypoint
-#         id         = step.value.id
-#       }
-#     }
-#   }
+}
+
+resource "google_filestore_instance" "default" {
+  project = var.project_id
+  name = "shared"
+  location = "us-central1-b"
+  tier = "PREMIUM"
+
+  file_shares {
+    capacity_gb = 2660
+    name        = "share1"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
+
+resource "google_service_account" "filestore" {
+  project      = var.project_id
+  account_id   = "filestore-identity"
+  display_name = "Service Account to servce as the service identity of Filestore"
 }
